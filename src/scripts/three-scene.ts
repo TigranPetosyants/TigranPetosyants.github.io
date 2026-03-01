@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { createPlanet, updatePlanet, disposePlanet, setMouseTarget } from './hero-planet';
+import { createAsteroids, updateAsteroids, disposeAsteroids } from './project-asteroids';
+import { projects } from '@data/resume';
 
 let sceneReadyResolve: (() => void) | null = null;
 export const sceneReady: Promise<void> = new Promise<void>((resolve) => {
@@ -20,6 +23,7 @@ const mouseTarget = new THREE.Vector2(0, 0);
 
 const lightColorCurrent = new THREE.Color(0x06b6d4);
 const lightColorTarget = new THREE.Color(0x06b6d4);
+
 
 interface FloatingShape {
   mesh: THREE.Mesh;
@@ -45,9 +49,11 @@ const ZONES: ZoneConfig[] = [
   { zCenter: -4,  count: 4, particleCount: 300 },
   { zCenter: -12, count: 5, particleCount: 350 },
   { zCenter: -20, count: 4, particleCount: 250 },
-  { zCenter: -28, count: 5, particleCount: 350 },
-  { zCenter: -36, count: 3, particleCount: 200 },
-  { zCenter: -45, count: 3, particleCount: 300 },
+  { zCenter: -30, count: 5, particleCount: 350 },
+  { zCenter: -40, count: 3, particleCount: 200 },
+  { zCenter: -50, count: 4, particleCount: 300 },
+  { zCenter: -60, count: 3, particleCount: 250 },
+  { zCenter: -70, count: 3, particleCount: 300 },
 ];
 
 const GEOMETRY_FACTORIES = [
@@ -109,9 +115,9 @@ function createFloatingShapes(isMobile: boolean): void {
 }
 
 function createBackgroundParticles(isMobile: boolean): void {
-  const totalParticles = isMobile ? 1075 : 2150;
+  const totalParticles = isMobile ? 1400 : 2800;
   const positions = new Float32Array(totalParticles * 3);
-  const corridorLength = 58;
+  const corridorLength = 82;
   const corridorStart = 8;
 
   for (let i = 0; i < totalParticles; i++) {
@@ -134,6 +140,10 @@ function createBackgroundParticles(isMobile: boolean): void {
 
   backgroundPoints = new THREE.Points(geometry, material);
   scene!.add(backgroundPoints);
+}
+
+export function getCamera(): THREE.PerspectiveCamera | null {
+  return camera;
 }
 
 export function initScene(): void {
@@ -166,14 +176,24 @@ export function initScene(): void {
   pointLight.position.set(3, 3, 5);
   scene.add(pointLight);
 
-  const ambientLight = new THREE.AmbientLight(0x0a0a1a, 1.5);
+  const ambientLight = new THREE.AmbientLight(0x223344, 2.0);
   scene.add(ambientLight);
+
+  const sunLight = new THREE.DirectionalLight(0xffffff, 3.0);
+  sunLight.position.set(5, 3, 4);
+  scene.add(sunLight);
+
+  const planetFill = new THREE.PointLight(0x88aacc, 1.5, 8);
+  planetFill.position.set(-2, -1, 2);
+  scene.add(planetFill);
 
   lightColorCurrent.set(0x06b6d4);
   lightColorTarget.set(0x06b6d4);
 
   createBackgroundParticles(isMobile);
   createFloatingShapes(isMobile);
+  createPlanet(scene, isMobile);
+  createAsteroids(scene, projects, isMobile);
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const timer = new THREE.Timer();
@@ -228,6 +248,9 @@ export function initScene(): void {
       }
     }
 
+    updatePlanet(elapsed, cameraCurrentZ.value, camera!);
+    updateAsteroids(elapsed, cameraCurrentZ.value, mouseNorm, camera!);
+
     renderer!.render(scene!, camera!);
 
     if (sceneReadyResolve) {
@@ -253,6 +276,8 @@ export function setLightColor(color: THREE.ColorRepresentation): void {
 function onMouseMove(e: MouseEvent) {
   mouseTarget.x = (e.clientX / window.innerWidth) * 2 - 1;
   mouseTarget.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  setMouseTarget(mouseTarget.x, mouseTarget.y);
 }
 
 function onResize() {
@@ -286,6 +311,9 @@ export function destroyScene(): void {
     scene?.remove(backgroundPoints);
     backgroundPoints = null;
   }
+
+  disposePlanet();
+  disposeAsteroids();
 
   renderer?.dispose();
   renderer = null;

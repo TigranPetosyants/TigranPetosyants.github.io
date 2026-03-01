@@ -2,11 +2,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { setCameraZTarget, setLightColor } from '@scripts/three-scene';
+import { setPlanetOpacity, setPlanetScale } from '@scripts/hero-planet';
+import { setAsteroidsActive, repositionAsteroids } from '@scripts/project-asteroids';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CAMERA_Z_START = 5;
-const CAMERA_Z_END = -50;
+const CAMERA_Z_END = -72;
 
 const LIGHT_COLOR_STOPS: Array<{ progress: number; color: number }> = [
   { progress: 0,    color: 0x06b6d4 },
@@ -67,6 +69,7 @@ export function initScrollAnimations(): void {
 
   animateSceneScroll();
   animateHero();
+  animatePlanetScroll();
   animateAbout();
   animateSkills();
   animateExperience();
@@ -89,6 +92,22 @@ function animateSceneScroll() {
       const z = CAMERA_Z_START + (CAMERA_Z_END - CAMERA_Z_START) * self.progress;
       setCameraZTarget(z);
       setLightColor(interpolateLightColor(self.progress));
+    },
+  });
+}
+
+function animatePlanetScroll() {
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+
+  ScrollTrigger.create({
+    trigger: hero,
+    start: 'top top',
+    end: 'bottom top',
+    scrub: 0.5,
+    onUpdate: (self) => {
+      setPlanetOpacity(1 - self.progress);
+      setPlanetScale(1 - self.progress * 0.3);
     },
   });
 }
@@ -382,12 +401,6 @@ function animateProjects() {
 
   gsap.set('[data-animate="section-title-projects"]', { opacity: 0, x: -32 });
 
-  const track = section.querySelector('[data-animate="projects-track"]') as HTMLElement;
-  const wrapper = section.querySelector('.projects-pin-wrapper') as HTMLElement;
-  if (!track || !wrapper) return;
-
-  const cards = track.querySelectorAll('[data-animate="project-card"]');
-
   gsap.to('[data-animate="section-title-projects"]', {
     scrollTrigger: {
       trigger: section,
@@ -400,46 +413,24 @@ function animateProjects() {
     duration: 0.8,
   });
 
-  gsap.set(cards, { opacity: 1, scale: 1 });
-
-  const isMobile = window.innerWidth < 768;
-
-  if (!isMobile) {
-    const getScrollWidth = () => track.scrollWidth - wrapper.offsetWidth;
-
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: wrapper,
-        start: 'top top',
-        end: () => `+=${getScrollWidth()}`,
-        pin: true,
-        pinSpacing: true,
-        scrub: 0.5,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onRefresh: () => ScrollTrigger.getAll().forEach(st => st.vars.trigger === document.querySelector('main') && st.refresh()),
+  const spacer = document.getElementById('projects-scroll-spacer');
+  if (spacer) {
+    ScrollTrigger.create({
+      trigger: spacer,
+      start: 'top bottom',
+      end: 'bottom top',
+      onEnter: () => setAsteroidsActive(true),
+      onLeave: () => setAsteroidsActive(false),
+      onEnterBack: () => setAsteroidsActive(true),
+      onLeaveBack: () => setAsteroidsActive(false),
+      onRefresh: (self) => {
+        const maxScroll = ScrollTrigger.maxScroll(window);
+        if (maxScroll <= 0) return;
+        const startZ = CAMERA_Z_START + (CAMERA_Z_END - CAMERA_Z_START) * (self.start / maxScroll);
+        const endZ = CAMERA_Z_START + (CAMERA_Z_END - CAMERA_Z_START) * (self.end / maxScroll);
+        repositionAsteroids(startZ, endZ);
       },
-    }).to(track, {
-      x: () => -getScrollWidth(),
-      ease: 'none',
     });
-  } else {
-    track.style.transform = 'none';
-
-    const dots = section.querySelectorAll('.project-dot');
-    if (dots.length && track) {
-      const updateDots = () => {
-        const scrollLeft = track.scrollLeft;
-        const cardWidth = (cards[0] as HTMLElement).offsetWidth + 32;
-        const activeIndex = Math.round(scrollLeft / cardWidth);
-        dots.forEach((dot, i) => {
-          (dot as HTMLElement).style.opacity = i === activeIndex ? '1' : '0.3';
-          (dot as HTMLElement).style.transform = i === activeIndex ? 'scale(1.3)' : 'scale(1)';
-        });
-      };
-      track.addEventListener('scroll', updateDots, { passive: true });
-      updateDots();
-    }
   }
 }
 
