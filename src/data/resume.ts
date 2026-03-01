@@ -113,8 +113,8 @@ export const stats = [
 export const projects = [
   {
     title: "ServiceNer",
-    description: "A full-stack service marketplace connecting clients with verified professionals across Armenia. Features multi-language support (AM/EN/RU), provider verification system, real-time booking with scheduling, and role-based dashboards for clients and providers.",
-    tech: ["Next.js", "React", "Node.js", "MongoDB", "TypeScript", "Tailwind CSS"],
+    description: "A full-stack service marketplace connecting clients with verified professionals across Armenia. Features multi-language support (AM/EN/RU), provider verification system, real-time booking with WebSocket-powered in-booking chat, and role-based dashboards for clients and providers.",
+    tech: ["Next.js", "React", "Node.js", "MongoDB", "WebSocket", "TypeScript", "Tailwind CSS"],
     link: "https://servicener-frontend.onrender.com/",
     image: "/projects/servicener.png",
   },

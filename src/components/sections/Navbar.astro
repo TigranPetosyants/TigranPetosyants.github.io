@@ -2,7 +2,7 @@
 ---
 
 <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-500">
-  <a href="#hero" class="font-mono text-xl font-bold text-accent tracking-tight hover:text-accent-light transition-colors">
+  <a href="#hero" id="logo-link" class="font-mono text-xl font-bold text-accent tracking-tight hover:text-accent-light transition-colors">
     TP
   </a>
 
@@ -96,6 +96,11 @@
 
   mobileLinks.forEach(link => {
     link.addEventListener('click', closeMenu);
+  });
+
+  document.getElementById('logo-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   const sections = ['about', 'skills', 'experience', 'projects', 'contact'];

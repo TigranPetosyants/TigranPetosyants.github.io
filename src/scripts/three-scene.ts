@@ -130,12 +130,13 @@ export function initHeroScene(): void {
   createBackgroundParticles(isMobile);
   createFloatingShapes(isMobile);
 
-  const clock = new THREE.Clock();
+  const timer = new THREE.Timer();
 
   function animate() {
     animationId = requestAnimationFrame(animate);
 
-    const elapsed = clock.getElapsedTime();
+    timer.update();
+    const elapsed = timer.getElapsed();
 
     mouseNorm.x += (mouseTarget.x - mouseNorm.x) * 0.05;
     mouseNorm.y += (mouseTarget.y - mouseNorm.y) * 0.05;
