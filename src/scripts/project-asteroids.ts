@@ -16,10 +16,10 @@ interface ProjectEntry {
   readonly image?: string;
 }
 
-const SHOW_START = 7;
-const OPAQUE_START = 3;
-const OPAQUE_END = -1;
-const HIDE_END = -2.5;
+const SHOW_START = 4;
+const OPAQUE_START = 2;
+const OPAQUE_END = -0.5;
+const HIDE_END = -1.5;
 let zoneEnter = -31;
 let zoneExit = -63;
 
@@ -331,6 +331,40 @@ export function updateAsteroids(
 ): void {
   if (asteroids.length === 0) return;
 
+  const isMobileView = window.innerWidth < 768;
+  const panelOpacities: number[] = [];
+
+  for (let i = 0; i < asteroids.length; i++) {
+    const { basePosition } = asteroids[i];
+    const diff = cameraZ - basePosition.z;
+    let opacity: number;
+    if (diff > SHOW_START || diff < HIDE_END) {
+      opacity = 0;
+    } else if (diff > OPAQUE_START) {
+      opacity = 1 - (diff - OPAQUE_START) / (SHOW_START - OPAQUE_START);
+    } else if (diff < OPAQUE_END) {
+      opacity = (diff - HIDE_END) / (OPAQUE_END - HIDE_END);
+    } else {
+      opacity = 1;
+    }
+    if (cameraZ > zoneEnter || cameraZ < zoneExit) opacity = 0;
+    panelOpacities.push(opacity);
+  }
+
+  if (isMobileView) {
+    let maxIdx = 0;
+    let maxVal = 0;
+    for (let i = 0; i < panelOpacities.length; i++) {
+      if (panelOpacities[i] > maxVal) {
+        maxVal = panelOpacities[i];
+        maxIdx = i;
+      }
+    }
+    for (let i = 0; i < panelOpacities.length; i++) {
+      if (i !== maxIdx) panelOpacities[i] = 0;
+    }
+  }
+
   for (let i = 0; i < asteroids.length; i++) {
     const asteroid = asteroids[i];
     const { group, basePosition, rotationSpeed, debris } = asteroid;
@@ -352,37 +386,23 @@ export function updateAsteroids(
     group.rotation.y += rotationSpeed.y;
     group.rotation.z += rotationSpeed.z;
 
-    if (group.visible) {
-      for (let d = 0; d < debris.length; d++) {
-        const dm = debris[d];
-        const angle = elapsed * (0.15 + d * 0.05) + d * 2.09;
-        const orbitR = dm.position.length();
-        const tiltY = dm.position.y;
-        dm.position.x = Math.cos(angle) * orbitR;
-        dm.position.z = Math.sin(angle) * orbitR;
-        dm.position.y = tiltY + Math.sin(elapsed * 0.3 + d) * 0.02;
-        dm.rotation.x += 0.01;
-        dm.rotation.y += 0.015;
-      }
+    for (let d = 0; d < debris.length; d++) {
+      const dm = debris[d];
+      const angle = elapsed * (0.15 + d * 0.05) + d * 2.09;
+      const orbitR = dm.position.length();
+      const tiltY = dm.position.y;
+      dm.position.x = Math.cos(angle) * orbitR;
+      dm.position.z = Math.sin(angle) * orbitR;
+      dm.position.y = tiltY + Math.sin(elapsed * 0.3 + d) * 0.02;
+      dm.rotation.x += 0.01;
+      dm.rotation.y += 0.015;
     }
 
     if (panels[i]) {
-      const diff = cameraZ - basePosition.z;
-      let opacity: number;
-      if (diff > SHOW_START || diff < HIDE_END) {
-        opacity = 0;
-      } else if (diff > OPAQUE_START) {
-        opacity = 1 - (diff - OPAQUE_START) / (SHOW_START - OPAQUE_START);
-      } else if (diff < OPAQUE_END) {
-        opacity = (diff - HIDE_END) / (OPAQUE_END - HIDE_END);
-      } else {
-        opacity = 1;
-      }
-      if (cameraZ > zoneEnter || cameraZ < zoneExit) opacity = 0;
+      const opacity = panelOpacities[i];
       panels[i].style.opacity = String(opacity);
       panels[i].style.pointerEvents = opacity > 0.3 ? 'auto' : 'none';
       const slideY = (1 - opacity) * 20;
-      const isMobileView = window.innerWidth < 768;
       if (isMobileView) {
         panels[i].style.transform = `translateX(-50%) translateY(-50%) translateY(${slideY}px)`;
       } else {
