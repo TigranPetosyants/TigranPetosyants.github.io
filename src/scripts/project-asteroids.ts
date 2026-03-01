@@ -24,7 +24,7 @@ let zoneEnter = -31;
 let zoneExit = -63;
 
 export const BASE_POSITIONS: [number, number, number][] = [
-  [-1.8, 0.3, -34],
+  [-0.9, 0.3, -34],
   [1.5, -0.5, -44],
   [-1.2, 0.8, -54],
   [1.8, -0.2, -64],
@@ -424,12 +424,15 @@ export function repositionAsteroids(cameraStartZ: number, cameraEndZ: number): v
   if (asteroids.length === 0) return;
 
   const count = asteroids.length;
-  const padding = 2;
-  const firstZ = cameraStartZ - SHOW_START + padding;
-  const lastZ = cameraEndZ - HIDE_END - padding;
+  const zoneMarginStart = 7;
+  const zoneMarginEnd = 5;
+  zoneEnter = cameraStartZ - zoneMarginStart;
+  zoneExit = cameraEndZ + zoneMarginEnd;
 
-  zoneEnter = cameraStartZ;
-  zoneExit = cameraEndZ;
+  const paddingStart = 2;
+  const paddingEnd = 2;
+  const firstZ = zoneEnter - SHOW_START + paddingStart;
+  const lastZ = zoneExit - HIDE_END - paddingEnd;
 
   for (let i = 0; i < count; i++) {
     const t = count > 1 ? i / (count - 1) : 0;

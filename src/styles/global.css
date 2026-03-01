@@ -41,3 +41,25 @@
   scrollbar-width: thin;
   scrollbar-color: #06b6d4 #141414;
 }
+
+.sidebar-nav-link {
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a3a3a3;
+  transition: font-size 0.3s ease, color 0.3s ease, font-weight 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sidebar-nav-link:hover {
+  color: #06b6d4;
+}
+
+.sidebar-nav-link.active {
+  font-size: 13px;
+  font-weight: 700;
+  color: #06b6d4;
+}

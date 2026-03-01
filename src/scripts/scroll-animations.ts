@@ -69,6 +69,7 @@ export function initScrollAnimations(): void {
 
   animateSceneScroll();
   animateHero();
+  animateNavbar();
   animatePlanetScroll();
   animateAbout();
   animateSkills();
@@ -218,6 +219,90 @@ function animateHero() {
       ease: 'power2.in',
     }, 0);
   }
+}
+
+function animateNavbar() {
+  const navbar = document.getElementById('navbar');
+  const sidebarNav = document.getElementById('sidebar-nav');
+  const hero = document.getElementById('hero');
+  if (!navbar || !sidebarNav || !hero) return;
+
+  const sidebarLinks = sidebarNav.querySelectorAll('.sidebar-nav-link');
+
+  gsap.set(sidebarNav, { opacity: 0, x: 30 });
+  gsap.set(sidebarLinks, { opacity: 0, x: 10 });
+
+  ScrollTrigger.create({
+    trigger: hero,
+    start: 'bottom 80px',
+    onEnter: () => {
+      window.dispatchEvent(new CustomEvent('navbar-mode-change', { detail: { vertical: true } }));
+
+      gsap.to(navbar, {
+        opacity: 0,
+        y: -20,
+        duration: 0.4,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          navbar.style.pointerEvents = 'none';
+        },
+      });
+
+      sidebarNav.style.pointerEvents = 'auto';
+      gsap.to(sidebarNav, {
+        opacity: 1,
+        x: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+      gsap.to(sidebarLinks, {
+        opacity: 1,
+        x: 0,
+        duration: 0.4,
+        stagger: 0.06,
+        ease: 'power2.out',
+        delay: 0.15,
+      });
+    },
+    onLeaveBack: () => {
+      window.dispatchEvent(new CustomEvent('navbar-mode-change', { detail: { vertical: false } }));
+
+      navbar.style.pointerEvents = '';
+      gsap.to(navbar, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: 'power2.inOut',
+      });
+
+      sidebarNav.style.pointerEvents = 'none';
+      gsap.to(sidebarNav, {
+        opacity: 0,
+        x: 30,
+        duration: 0.4,
+        ease: 'power2.in',
+      });
+      gsap.to(sidebarLinks, {
+        opacity: 0,
+        x: 10,
+        duration: 0.3,
+        ease: 'power2.in',
+      });
+    },
+  });
+
+  const onResize = () => {
+    if (window.innerWidth < 768) {
+      gsap.set(navbar, { opacity: 1, y: 0 });
+      navbar.style.pointerEvents = '';
+      gsap.set(sidebarNav, { opacity: 0, x: 30 });
+      sidebarNav.style.pointerEvents = 'none';
+      gsap.set(sidebarLinks, { opacity: 0, x: 10 });
+      window.dispatchEvent(new CustomEvent('navbar-mode-change', { detail: { vertical: false } }));
+    }
+  };
+
+  window.addEventListener('resize', onResize, { passive: true });
 }
 
 function animateAbout() {
