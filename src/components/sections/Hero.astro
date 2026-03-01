@@ -1,0 +1,88 @@
+---
+import { personalInfo } from '@data/resume';
+---
+
+<section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+  <canvas
+    id="hero-canvas"
+    class="absolute inset-0 w-full h-full pointer-events-none"
+    aria-hidden="true"
+    style="background: radial-gradient(ellipse at 50% 50%, #0d1a2e 0%, #0a0a0a 70%);"
+  ></canvas>
+
+  <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 50%, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.7) 70%);"></div>
+
+  <div class="relative z-10 text-center px-6 max-w-5xl mx-auto">
+    <p
+      data-animate="hero-greeting"
+      class="font-mono text-accent text-xs md:text-sm tracking-[0.35em] uppercase mb-6 opacity-0 translate-y-4"
+    >
+      Hello, I'm
+    </p>
+
+    <h1
+      data-animate="hero-name"
+      class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-wider text-text uppercase mb-4 opacity-0 translate-y-8"
+      style="text-shadow: 0 0 40px rgba(10,10,10,0.8), 0 0 80px rgba(6,182,212,0.2);"
+    >
+      {personalInfo.name}
+    </h1>
+
+    <div
+      data-animate="hero-title"
+      class="flex items-center justify-center gap-4 mb-10 opacity-0 translate-y-6"
+    >
+      <div class="h-px w-12 md:w-24" style="background: linear-gradient(to right, transparent, #06b6d4);"></div>
+      <span class="text-accent text-lg md:text-2xl font-light tracking-[0.2em] uppercase">
+        {personalInfo.title}
+      </span>
+      <div class="h-px w-12 md:w-24" style="background: linear-gradient(to left, transparent, #06b6d4);"></div>
+    </div>
+
+    <div
+      data-animate="hero-cta"
+      class="flex gap-4 md:gap-6 justify-center flex-wrap opacity-0 translate-y-6"
+    >
+      <a
+        href="#contact"
+        class="group px-7 py-3.5 font-semibold text-sm tracking-wider uppercase text-background rounded-lg transition-all duration-300 hover:shadow-lg"
+        style="background: #06b6d4; box-shadow: 0 0 20px rgba(6,182,212,0.3);"
+        onmouseover="this.style.background='#22d3ee'; this.style.boxShadow='0 0 30px rgba(6,182,212,0.5)';"
+        onmouseout="this.style.background='#06b6d4'; this.style.boxShadow='0 0 20px rgba(6,182,212,0.3)';"
+      >
+        Get In Touch
+      </a>
+      <a
+        href="#experience"
+        class="px-7 py-3.5 font-semibold text-sm tracking-wider uppercase text-accent rounded-lg border transition-all duration-300"
+        style="border-color: rgba(6,182,212,0.4);"
+        onmouseover="this.style.borderColor='#06b6d4'; this.style.background='rgba(6,182,212,0.07)'; this.style.boxShadow='0 0 20px rgba(6,182,212,0.15)';"
+        onmouseout="this.style.borderColor='rgba(6,182,212,0.4)'; this.style.background=''; this.style.boxShadow='';"
+      >
+        View Experience
+      </a>
+    </div>
+  </div>
+
+  <div
+    data-animate="hero-scroll"
+    class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0 translate-y-4"
+  >
+    <span class="font-mono text-[10px] text-text-muted tracking-[0.3em] uppercase">Scroll</span>
+    <div class="relative w-px h-14 overflow-hidden" style="background: rgba(163,163,163,0.2);">
+      <div class="scroll-line absolute top-0 left-0 w-full h-1/2" style="background: linear-gradient(to bottom, #06b6d4, transparent); animation: scrollDrop 2s ease-in-out infinite;"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes scrollDrop {
+    0% { transform: translateY(-100%); opacity: 1; }
+    100% { transform: translateY(400%); opacity: 0; }
+  }
+</style>
+
+<script>
+  import { initHeroScene } from '@scripts/three-scene';
+  initHeroScene();
+</script>

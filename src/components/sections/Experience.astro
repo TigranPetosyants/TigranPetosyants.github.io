@@ -1,0 +1,69 @@
+---
+import { experience } from '@data/resume';
+---
+
+<section id="experience" class="py-28 px-6" style="background: #0f0f0f;">
+  <div class="max-w-6xl mx-auto">
+    <div data-animate="section-title-experience" class="mb-16 opacity-0 -translate-x-8">
+      <p class="font-mono text-accent text-xs tracking-[0.3em] uppercase mb-3">03 / Experience</p>
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-text mb-4">Experience</h2>
+      <div class="w-20 h-0.5" style="background: linear-gradient(to right, #06b6d4, transparent);"></div>
+    </div>
+
+    <div class="relative">
+      <div
+        data-animate="timeline-line"
+        class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px origin-top"
+        style="background: linear-gradient(to bottom, #06b6d4, rgba(6,182,212,0.1)); transform: scaleY(0);"
+      ></div>
+
+      <div class="flex flex-col gap-16">
+        {experience.map((job, index) => {
+          const isLeft = index % 2 === 0;
+          return (
+            <div
+              data-animate="timeline-item"
+              class={`relative flex flex-col lg:flex-row gap-8 ${isLeft ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center`}
+            >
+              <div class="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-5 h-5 rounded-full border-2 z-10 items-center justify-center"
+                style="border-color: #06b6d4; background: #0a0a0a; box-shadow: 0 0 16px rgba(6,182,212,0.6);">
+                <div class="w-2 h-2 rounded-full" style="background: #06b6d4;"></div>
+              </div>
+
+              <div class={`w-full lg:w-[calc(50%-2.5rem)] ${isLeft ? 'lg:text-right' : ''}`}>
+                <div
+                  class="group p-7 rounded-2xl border transition-all duration-400"
+                  style="background: #141414; border-color: #262626;"
+                  onmouseover="this.style.borderColor='rgba(6,182,212,0.3)'; this.style.boxShadow='0 0 40px rgba(6,182,212,0.06)';"
+                  onmouseout="this.style.borderColor='#262626'; this.style.boxShadow='';"
+                >
+                  <div class={`flex flex-col gap-1 mb-5 ${isLeft ? 'lg:items-end' : ''}`}>
+                    <span class="font-mono text-xs text-text-muted tracking-wider py-1 px-3 rounded-full border w-fit" style="border-color: #262626; background: #0a0a0a;">
+                      {job.period}
+                    </span>
+                    <h3 class="text-lg font-bold text-text mt-2">{job.role}</h3>
+                    <p class="text-accent font-semibold">{job.company}</p>
+                    <p class="text-xs text-text-muted font-mono">{job.location}</p>
+                  </div>
+
+                  <div class={`h-px mb-5 ${isLeft ? 'lg:ml-auto' : ''}`} style="background: linear-gradient(to right, rgba(6,182,212,0.2), transparent); width: 60%;"></div>
+
+                  <ul class={`flex flex-col gap-3 ${isLeft ? 'lg:items-end' : ''}`}>
+                    {job.bullets.map((bullet) => (
+                      <li class={`flex gap-3 text-sm text-text-muted leading-relaxed ${isLeft ? 'lg:flex-row-reverse' : ''}`}>
+                        <span class="text-accent mt-1 shrink-0 text-xs">▸</span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div class="hidden lg:block lg:w-20"></div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>

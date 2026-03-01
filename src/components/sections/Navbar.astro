@@ -1,0 +1,127 @@
+---
+---
+
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-500">
+  <a href="#hero" class="font-mono text-xl font-bold text-accent tracking-tight hover:text-accent-light transition-colors">
+    TP
+  </a>
+
+  <ul class="hidden md:flex gap-8 text-sm text-text-muted">
+    <li><a href="#about" class="nav-link hover:text-accent transition-colors duration-200 relative py-1">About</a></li>
+    <li><a href="#skills" class="nav-link hover:text-accent transition-colors duration-200 relative py-1">Skills</a></li>
+    <li><a href="#experience" class="nav-link hover:text-accent transition-colors duration-200 relative py-1">Experience</a></li>
+    <li><a href="#projects" class="nav-link hover:text-accent transition-colors duration-200 relative py-1">Projects</a></li>
+    <li><a href="#contact" class="nav-link hover:text-accent transition-colors duration-200 relative py-1">Contact</a></li>
+  </ul>
+
+  <button
+    id="mobile-menu-btn"
+    class="md:hidden flex flex-col gap-1.5 w-8 h-8 items-center justify-center"
+    aria-label="Toggle mobile menu"
+    aria-expanded="false"
+  >
+    <span class="hamburger-line w-6 h-px bg-text transition-all duration-300 origin-center"></span>
+    <span class="hamburger-line w-6 h-px bg-text transition-all duration-300 origin-center"></span>
+    <span class="hamburger-line w-6 h-px bg-text transition-all duration-300 origin-center"></span>
+  </button>
+</nav>
+
+<div
+  id="mobile-menu"
+  class="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300"
+  aria-hidden="true"
+>
+  <ul class="flex flex-col gap-8 text-center">
+    <li><a href="#about" class="mobile-nav-link text-3xl font-bold text-text hover:text-accent transition-colors">About</a></li>
+    <li><a href="#skills" class="mobile-nav-link text-3xl font-bold text-text hover:text-accent transition-colors">Skills</a></li>
+    <li><a href="#experience" class="mobile-nav-link text-3xl font-bold text-text hover:text-accent transition-colors">Experience</a></li>
+    <li><a href="#projects" class="mobile-nav-link text-3xl font-bold text-text hover:text-accent transition-colors">Projects</a></li>
+    <li><a href="#contact" class="mobile-nav-link text-3xl font-bold text-text hover:text-accent transition-colors">Contact</a></li>
+  </ul>
+</div>
+
+<script>
+  const navbar = document.getElementById('navbar')!;
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn')!;
+  const mobileMenu = document.getElementById('mobile-menu')!;
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+  const hamburgerLines = document.querySelectorAll('.hamburger-line') as NodeListOf<HTMLElement>;
+
+  let isMenuOpen = false;
+
+  function setNavbarScrolled(scrolled: boolean) {
+    if (scrolled) {
+      navbar.style.backgroundColor = 'rgba(10, 10, 10, 0.85)';
+      navbar.style.backdropFilter = 'blur(12px)';
+      navbar.style.borderBottom = '1px solid rgba(38, 38, 38, 0.8)';
+    } else {
+      navbar.style.backgroundColor = 'transparent';
+      navbar.style.backdropFilter = 'none';
+      navbar.style.borderBottom = '1px solid transparent';
+    }
+  }
+
+  setNavbarScrolled(false);
+
+  window.addEventListener('scroll', () => {
+    setNavbarScrolled(window.scrollY > 50);
+  }, { passive: true });
+
+  function openMenu() {
+    isMenuOpen = true;
+    mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    mobileMenuBtn.setAttribute('aria-expanded', 'true');
+    hamburgerLines[0].style.transform = 'translateY(6.5px) rotate(45deg)';
+    hamburgerLines[1].style.opacity = '0';
+    hamburgerLines[2].style.transform = 'translateY(-6.5px) rotate(-45deg)';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    isMenuOpen = false;
+    mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    hamburgerLines[0].style.transform = '';
+    hamburgerLines[1].style.opacity = '1';
+    hamburgerLines[2].style.transform = '';
+    document.body.style.overflow = '';
+  }
+
+  mobileMenuBtn.addEventListener('click', () => {
+    if (isMenuOpen) closeMenu();
+    else openMenu();
+  });
+
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  const sections = ['about', 'skills', 'experience', 'projects', 'contact'];
+  const navLinks = document.querySelectorAll('.nav-link') as NodeListOf<HTMLAnchorElement>;
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === `#${id}`) {
+              link.style.color = '#06b6d4';
+            } else {
+              link.style.color = '';
+            }
+          });
+        }
+      });
+    },
+    { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
+  );
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+</script>

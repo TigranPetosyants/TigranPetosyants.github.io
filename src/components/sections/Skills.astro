@@ -1,0 +1,57 @@
+---
+import { skills } from '@data/resume';
+
+const categoryIcons: Record<string, string> = {
+  'Front-End': '◈',
+  'Back-End': '◉',
+  'AI & Tooling': '◇',
+  'Testing': '◎',
+  'DevOps & Cloud': '◐',
+  'Methodologies': '◑',
+};
+---
+
+<section id="skills" class="py-28 px-6" style="background: #0a0a0a;">
+  <div class="max-w-6xl mx-auto">
+    <div data-animate="section-title-skills" class="mb-16 opacity-0 -translate-x-8">
+      <p class="font-mono text-accent text-xs tracking-[0.3em] uppercase mb-3">02 / Skills</p>
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-text mb-4">Technical Skills</h2>
+      <div class="w-20 h-0.5" style="background: linear-gradient(to right, #06b6d4, transparent);"></div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.entries(skills).map(([category, items]) => (
+        <div
+          data-animate="skill-card"
+          class="group relative p-8 rounded-2xl border overflow-hidden opacity-0 translate-y-8 transition-all duration-500"
+          style="background: #141414; border-color: #262626;"
+          onmouseover="this.style.borderColor='rgba(6,182,212,0.3)'; this.style.boxShadow='0 0 40px rgba(6,182,212,0.06)';"
+          onmouseout="this.style.borderColor='#262626'; this.style.boxShadow='';"
+        >
+          <div class="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style="background: radial-gradient(ellipse at 0% 0%, rgba(6,182,212,0.04) 0%, transparent 60%);"></div>
+
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="text-2xl text-accent">{categoryIcons[category] || '◈'}</span>
+              <h3 class="font-mono text-accent text-sm uppercase tracking-[0.2em]">{category}</h3>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              {items.map((skill) => (
+                <span
+                  data-animate="skill-chip"
+                  class="px-3 py-1.5 rounded-lg text-sm text-text-muted border opacity-0 scale-75 transition-all duration-200 cursor-default"
+                  style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);"
+                  onmouseover="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.color='#f5f5f5'; this.style.background='rgba(6,182,212,0.06)'; this.style.boxShadow='0 0 12px rgba(6,182,212,0.1)';"
+                  onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.color=''; this.style.background='rgba(255,255,255,0.03)'; this.style.boxShadow='';"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
