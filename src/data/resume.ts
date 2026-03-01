@@ -11,7 +11,7 @@ export const summary = "Full-Stack Web Developer with 3+ years of experience bui
 
 export const skills = {
   "Front-End": ["Angular 13–20", "React", "Next.js", "TypeScript", "JavaScript (ES6+)", "HTML5", "CSS3/SCSS", "Tailwind CSS", "Astro", "Three.js", "GSAP", "Angular Material", "RxJS", "Figma", "Figma-to-Code Workflows", "Lit (familiar)"],
-  "Back-End": ["Node.js", "Bun", "Express.js", "LoopBack", "MongoDB", "PostgreSQL (familiar)", "Redis (familiar)", "RESTful APIs", "GraphQL", "gRPC"],
+  "Back-End": ["Node.js", "Bun", "Express.js", "LoopBack", "MongoDB", "Firebase", "PostgreSQL (familiar)", "Redis (familiar)", "RESTful APIs", "GraphQL", "gRPC"],
   "AI & Tooling": ["MCP (Model Context Protocol)", "Agent-to-Agent (A2A)"],
   "Testing": ["Cypress (E2E)", "Puppeteer", "Unit Testing", "Component Testing"],
   "DevOps & Cloud": ["Git", "GitHub/GitLab", "Bitbucket", "CI/CD Pipelines", "Docker", "AWS (familiar)", "Linux", "npm/yarn"],
@@ -112,21 +112,31 @@ export const stats = [
 
 export const projects = [
   {
-    title: "Portfolio Website",
-    description: "Personal portfolio built with Astro, Tailwind CSS, Three.js, and GSAP — featuring a floating geometry constellation hero, scroll-scrubbed animations, and a dark futuristic design system.",
-    tech: ["Astro", "TypeScript", "Three.js", "GSAP", "Tailwind CSS"],
-    placeholder: false,
+    title: "ServiceNer",
+    description: "A full-stack service marketplace connecting clients with verified professionals across Armenia. Features multi-language support (AM/EN/RU), provider verification system, real-time booking with scheduling, and role-based dashboards for clients and providers.",
+    tech: ["Next.js", "React", "Node.js", "MongoDB", "TypeScript", "Tailwind CSS"],
+    link: "https://servicener-frontend.onrender.com/",
+    image: "/projects/servicener.png",
   },
   {
-    title: "REST API Boilerplate",
-    description: "Production-ready Node.js REST API starter with Express, MongoDB, JWT authentication, role-based access control, and structured error handling.",
-    tech: ["Node.js", "Express.js", "MongoDB", "TypeScript", "JWT"],
-    placeholder: false,
+    title: "Sneakers Store",
+    description: "An e-commerce single-page application for browsing and purchasing sneakers. Includes product catalog with filtering, shopping cart functionality, responsive design, and a clean modern UI.",
+    tech: ["Angular", "TypeScript", "Tailwind CSS", "RxJS"],
+    link: "https://angular-sneakers.vercel.app/home",
+    image: "/projects/sneakers-store.png",
   },
   {
-    title: "Angular Component Library",
-    description: "Reusable UI component library built with Angular and Angular Material, featuring custom form controls, data tables, and theming support.",
-    tech: ["Angular", "TypeScript", "Angular Material", "SCSS", "RxJS"],
-    placeholder: false,
+    title: "Technical Blog",
+    description: "A tech blog platform with a dark-themed design system, featuring article listings, syntax-highlighted code blocks, and category-based navigation focused on Angular and web development news.",
+    tech: ["Angular", "TypeScript", "Firebase", "SCSS", "Angular Material"],
+    link: "https://tech-blog-angular.vercel.app/pages/angular-news",
+    image: "/projects/fireblog.png",
+  },
+  {
+    title: "Armenia IT Jobs Bot",
+    description: "A Telegram bot that collects job postings from LinkedIn, Recruitee, and other recruiting platforms, covering positions in Armenia and remote roles worldwide with a focus on Angular-related opportunities.",
+    tech: ["Bun", "TypeScript", "Telegram Bot API", "Web Scraping"],
+    link: "https://t.me/armenia_jobs_it",
+    image: "/projects/armenia-it-jobs-bot.png",
   },
 ] as const;

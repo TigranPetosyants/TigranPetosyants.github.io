@@ -277,29 +277,6 @@ function animateProjects() {
   if (!track || !wrapper) return;
 
   const cards = track.querySelectorAll('[data-animate="project-card"]');
-  const getScrollWidth = () => track.scrollWidth - window.innerWidth;
-
-  gsap.set(cards[0], { opacity: 1, scale: 1 });
-  for (let i = 1; i < cards.length; i++) {
-    gsap.set(cards[i], { opacity: 0, scale: 0.9 });
-  }
-
-  const pinTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: wrapper,
-      start: 'top top',
-      end: () => `+=${getScrollWidth()}`,
-      pin: true,
-      scrub: 0.5,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-    },
-  });
-
-  pinTl.to(track, {
-    x: () => -getScrollWidth(),
-    ease: 'none',
-  });
 
   gsap.to('[data-animate="section-title-projects"]', {
     scrollTrigger: {
@@ -313,14 +290,48 @@ function animateProjects() {
     duration: 0.8,
   });
 
-  for (let i = 1; i < cards.length; i++) {
-    const revealAt = (i - 0.3) / cards.length;
-    pinTl.fromTo(cards[i],
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, ease: 'power2.out', duration: 0.15 },
-      revealAt
-    );
-  }
+  ScrollTrigger.matchMedia({
+    '(min-width: 768px)': () => {
+      const getScrollWidth = () => track.scrollWidth - window.innerWidth;
+
+      gsap.set(cards, { opacity: 1, scale: 1 });
+
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: wrapper,
+          start: 'top top',
+          end: () => `+=${getScrollWidth()}`,
+          pin: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+      }).to(track, {
+        x: () => -getScrollWidth(),
+        ease: 'none',
+      });
+    },
+
+    '(max-width: 767px)': () => {
+      gsap.set(cards, { opacity: 1, scale: 1 });
+      track.style.transform = 'none';
+
+      const dots = section.querySelectorAll('.project-dot');
+      if (dots.length && track) {
+        const updateDots = () => {
+          const scrollLeft = track.scrollLeft;
+          const cardWidth = (cards[0] as HTMLElement).offsetWidth + 32;
+          const activeIndex = Math.round(scrollLeft / cardWidth);
+          dots.forEach((dot, i) => {
+            (dot as HTMLElement).style.opacity = i === activeIndex ? '1' : '0.3';
+            (dot as HTMLElement).style.transform = i === activeIndex ? 'scale(1.3)' : 'scale(1)';
+          });
+        };
+        track.addEventListener('scroll', updateDots, { passive: true });
+        updateDots();
+      }
+    },
+  });
 }
 
 function animateEducation() {
