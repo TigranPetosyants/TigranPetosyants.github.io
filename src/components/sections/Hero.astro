@@ -3,21 +3,14 @@ import { personalInfo } from '@data/resume';
 ---
 
 <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
-  <canvas
-    id="hero-canvas"
-    class="absolute inset-0 w-full h-full pointer-events-none"
-    aria-hidden="true"
-    style="background: radial-gradient(ellipse at 50% 50%, #0d1a2e 0%, #0a0a0a 70%);"
-  ></canvas>
-
-  <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 50%, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.7) 70%);"></div>
-
   <div class="relative z-10 text-center px-6 max-w-5xl mx-auto">
     <p
       data-animate="hero-greeting"
       class="font-mono text-accent text-xs md:text-sm tracking-[0.35em] uppercase mb-6 opacity-0 translate-y-4"
     >
-      Hello, I'm
+      {['Hello,', "I'm"].map((word) => (
+        <span class="hero-word inline-block">{word}&nbsp;</span>
+      ))}
     </p>
 
     <h1
@@ -25,7 +18,14 @@ import { personalInfo } from '@data/resume';
       class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-wider text-text uppercase mb-4 opacity-0 translate-y-8"
       style="text-shadow: 0 0 40px rgba(10,10,10,0.8), 0 0 80px rgba(6,182,212,0.2);"
     >
-      {personalInfo.name}
+      {personalInfo.name.split(' ').map((word, wi, arr) => (
+        <span class="inline-block whitespace-nowrap">
+          {word.split('').map((char) => (
+            <span class="hero-char inline-block">{char}</span>
+          ))}
+          {wi < arr.length - 1 && <span class="hero-char inline-block">&nbsp;</span>}
+        </span>
+      ))}
     </h1>
 
     <div
@@ -34,7 +34,9 @@ import { personalInfo } from '@data/resume';
     >
       <div class="h-px w-12 md:w-24" style="background: linear-gradient(to right, transparent, #06b6d4);"></div>
       <span class="text-accent text-lg md:text-2xl font-light tracking-[0.2em] uppercase">
-        {personalInfo.title}
+        {personalInfo.title.split(' ').map((word, i, arr) => (
+          <span class="hero-word inline-block">{word}{i < arr.length - 1 ? '\u00A0' : ''}</span>
+        ))}
       </span>
       <div class="h-px w-12 md:w-24" style="background: linear-gradient(to left, transparent, #06b6d4);"></div>
     </div>
@@ -76,13 +78,12 @@ import { personalInfo } from '@data/resume';
 </section>
 
 <style>
+  .hero-char, .hero-word {
+    will-change: transform, opacity;
+  }
+
   @keyframes scrollDrop {
     0% { transform: translateY(-100%); opacity: 1; }
     100% { transform: translateY(400%); opacity: 0; }
   }
 </style>
-
-<script>
-  import { initHeroScene } from '@scripts/three-scene';
-  initHeroScene();
-</script>

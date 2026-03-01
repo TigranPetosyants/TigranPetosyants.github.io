@@ -52,10 +52,93 @@ const ogImage = new URL('/og-image.png', Astro.site);
     />
   </head>
   <body class="bg-background text-text font-sans antialiased overflow-x-hidden">
-    <slot />
+    <div
+      id="loader"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6"
+      style="background: #0a0a0a;"
+      aria-label="Loading"
+      aria-live="polite"
+    >
+      <div class="loader-logo font-mono text-4xl font-bold opacity-0" style="color: #06b6d4;">TP</div>
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-48 h-px" style="background: rgba(6,182,212,0.2);">
+          <div
+            id="loader-bar"
+            class="loader-bar h-full origin-left"
+            style="background: #06b6d4; transform: scaleX(0);"
+          ></div>
+        </div>
+        <span class="loader-text font-mono text-xs tracking-[0.3em] uppercase opacity-0" style="color: #a3a3a3;">Loading</span>
+      </div>
+    </div>
+
+    <style>
+      .loader-logo {
+        animation: loaderFadeIn 0.6s ease-out 0.1s forwards;
+      }
+      .loader-text {
+        animation: loaderFadeIn 0.4s ease-out 0.3s forwards;
+      }
+      .loader-bar {
+        animation: loaderProgress 2.5s ease-in-out 0.2s forwards;
+      }
+      @keyframes loaderFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes loaderProgress {
+        0% { transform: scaleX(0); }
+        70% { transform: scaleX(0.7); }
+        100% { transform: scaleX(0.7); }
+      }
+    </style>
+
+    <div
+      class="fixed inset-0 pointer-events-none z-0"
+      aria-hidden="true"
+      style="background: radial-gradient(ellipse at 50% 50%, #0d1a2e 0%, #0a0a0a 70%);"
+    ></div>
+    <canvas
+      id="scene-canvas"
+      class="fixed inset-0 w-full h-full pointer-events-none z-0"
+      aria-hidden="true"
+    ></canvas>
+    <div class="relative z-10">
+      <slot />
+    </div>
     <script>
+      import { initScene, sceneReady } from '@scripts/three-scene';
       import { initScrollAnimations } from '@scripts/scroll-animations';
+
+      document.body.classList.add('overflow-y-hidden');
+      initScene();
       initScrollAnimations();
+
+      const loader = document.getElementById('loader');
+      const loaderBar = document.getElementById('loader-bar');
+
+      const dismiss = () => {
+        if (!loader) return;
+        loader.style.transition = 'opacity 0.6s ease-in-out';
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+        setTimeout(() => {
+          loader.remove();
+          document.body.classList.remove('overflow-y-hidden');
+          document.dispatchEvent(new CustomEvent('loader-dismissed'));
+        }, 600);
+      };
+
+      const timeout = setTimeout(dismiss, 4000);
+
+      sceneReady.then(() => {
+        clearTimeout(timeout);
+        if (loaderBar) {
+          loaderBar.style.transition = 'transform 0.4s ease-out';
+          loaderBar.style.transform = 'scaleX(1)';
+        }
+        setTimeout(dismiss, 500);
+      });
     </script>
   </body>
 </html>

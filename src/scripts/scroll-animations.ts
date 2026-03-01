@@ -1,8 +1,52 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { setCameraZTarget, setLightColor } from '@scripts/three-scene';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const CAMERA_Z_START = 5;
+const CAMERA_Z_END = -50;
+
+const LIGHT_COLOR_STOPS: Array<{ progress: number; color: number }> = [
+  { progress: 0,    color: 0x06b6d4 },
+  { progress: 0.15, color: 0x0d9488 },
+  { progress: 0.30, color: 0x06b6d4 },
+  { progress: 0.45, color: 0x7c3aed },
+  { progress: 0.60, color: 0x0ea5e9 },
+  { progress: 0.75, color: 0x06b6d4 },
+  { progress: 1.0,  color: 0x22d3ee },
+];
+
+function interpolateLightColor(progress: number): number {
+  let lower = LIGHT_COLOR_STOPS[0];
+  let upper = LIGHT_COLOR_STOPS[LIGHT_COLOR_STOPS.length - 1];
+
+  for (let i = 0; i < LIGHT_COLOR_STOPS.length - 1; i++) {
+    if (progress >= LIGHT_COLOR_STOPS[i].progress && progress <= LIGHT_COLOR_STOPS[i + 1].progress) {
+      lower = LIGHT_COLOR_STOPS[i];
+      upper = LIGHT_COLOR_STOPS[i + 1];
+      break;
+    }
+  }
+
+  const range = upper.progress - lower.progress;
+  const t = range === 0 ? 0 : (progress - lower.progress) / range;
+
+  const lr = (lower.color >> 16) & 0xff;
+  const lg = (lower.color >> 8) & 0xff;
+  const lb = lower.color & 0xff;
+
+  const ur = (upper.color >> 16) & 0xff;
+  const ug = (upper.color >> 8) & 0xff;
+  const ub = upper.color & 0xff;
+
+  const r = Math.round(lr + (ur - lr) * t);
+  const g = Math.round(lg + (ug - lg) * t);
+  const b = Math.round(lb + (ub - lb) * t);
+
+  return (r << 16) | (g << 8) | b;
+}
 
 export function initScrollAnimations(): void {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -12,6 +56,7 @@ export function initScrollAnimations(): void {
       (el as HTMLElement).style.opacity = '1';
       (el as HTMLElement).style.transform = 'none';
     });
+    setCameraZTarget(CAMERA_Z_START);
     return;
   }
 
@@ -20,6 +65,7 @@ export function initScrollAnimations(): void {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 
+  animateSceneScroll();
   animateHero();
   animateAbout();
   animateSkills();
@@ -30,64 +76,128 @@ export function initScrollAnimations(): void {
   animateParallax();
 }
 
+function animateSceneScroll() {
+  const main = document.querySelector('main');
+  if (!main) return;
+
+  ScrollTrigger.create({
+    trigger: main,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 1.5,
+    onUpdate: (self) => {
+      const z = CAMERA_Z_START + (CAMERA_Z_END - CAMERA_Z_START) * self.progress;
+      setCameraZTarget(z);
+      setLightColor(interpolateLightColor(self.progress));
+    },
+  });
+}
+
 function animateHero() {
   const hero = document.getElementById('hero');
   if (!hero) return;
 
-  const tl = gsap.timeline({ delay: 0.3 });
+  const heroContent = hero.querySelector('.relative.z-10') as HTMLElement;
+  if (heroContent) {
+    heroContent.style.perspective = '1200px';
+    heroContent.style.transformStyle = 'preserve-3d';
+  }
 
-  tl.to('[data-animate="hero-greeting"]', {
-    opacity: 1,
-    y: 0,
-    duration: 0.8,
-    ease: 'power3.out',
-  })
-    .to('[data-animate="hero-name"]', {
-      opacity: 1,
-      y: 0,
-      duration: 1.2,
-      ease: 'power3.out',
-    }, '-=0.4')
-    .to('[data-animate="hero-title"]', {
-      opacity: 1,
-      y: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-    }, '-=0.7')
-    .to('[data-animate="hero-cta"]', {
+  document.addEventListener('loader-dismissed', () => {
+    const tl = gsap.timeline();
+
+    tl.to('[data-animate="hero-greeting"]', {
       opacity: 1,
       y: 0,
       duration: 0.8,
       ease: 'power3.out',
-    }, '-=0.5')
-    .to('[data-animate="hero-scroll"]', {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: 'power2.out',
-    }, '-=0.3');
-
-  const heroContent = hero.querySelector('.relative.z-10') as HTMLElement;
-  if (heroContent) {
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: hero,
-        start: 'top top',
-        end: '+=50%',
-        pin: true,
-        scrub: 0.6,
-      },
     })
-      .to(heroContent, {
-        opacity: 0,
-        scale: 0.9,
-        y: -40,
-        ease: 'none',
-      }, 0)
-      .to('#hero-canvas', {
-        opacity: 0,
-        ease: 'none',
-      }, 0);
+      .to('[data-animate="hero-name"]', {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+      }, '-=0.4')
+      .to('[data-animate="hero-title"]', {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+      }, '-=0.7')
+      .to('[data-animate="hero-cta"]', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      }, '-=0.5')
+      .to('[data-animate="hero-scroll"]', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+      }, '-=0.3');
+  }, { once: true });
+
+  if (!heroContent) return;
+
+  const chars = heroContent.querySelectorAll('.hero-char');
+  const words = heroContent.querySelectorAll('.hero-word');
+  const ctaButtons = heroContent.querySelectorAll('[data-animate="hero-cta"] a');
+  const titleLines = heroContent.querySelectorAll('[data-animate="hero-title"] .h-px');
+  const scrollIndicator = hero.querySelector('[data-animate="hero-scroll"]');
+
+  const scrollTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: hero,
+      start: 'top top',
+      end: '80% top',
+      scrub: 0.6,
+    },
+  });
+
+  scrollTl.to(chars, {
+    z: () => -800 - Math.random() * 1200,
+    x: () => (Math.random() - 0.5) * 600,
+    y: () => (Math.random() - 0.5) * 400,
+    rotationX: () => (Math.random() - 0.5) * 180,
+    rotationY: () => (Math.random() - 0.5) * 180,
+    opacity: 0,
+    stagger: { each: 0.02, from: 'center' },
+    ease: 'power2.in',
+  }, 0);
+
+  scrollTl.to(words, {
+    z: () => -600 - Math.random() * 800,
+    x: () => (Math.random() - 0.5) * 400,
+    y: () => (Math.random() - 0.5) * 300,
+    rotationX: () => (Math.random() - 0.5) * 90,
+    rotationY: () => (Math.random() - 0.5) * 90,
+    opacity: 0,
+    stagger: { each: 0.03, from: 'edges' },
+    ease: 'power2.in',
+  }, 0);
+
+  scrollTl.to(ctaButtons, {
+    z: -1000,
+    y: () => 100 + Math.random() * 200,
+    rotationX: -45,
+    opacity: 0,
+    stagger: 0.05,
+    ease: 'power2.in',
+  }, 0);
+
+  scrollTl.to(titleLines, {
+    scaleX: 0,
+    opacity: 0,
+    ease: 'power2.in',
+  }, 0);
+
+  if (scrollIndicator) {
+    scrollTl.to(scrollIndicator, {
+      opacity: 0,
+      y: 20,
+      ease: 'power2.in',
+    }, 0);
   }
 }
 
@@ -290,48 +400,47 @@ function animateProjects() {
     duration: 0.8,
   });
 
-  ScrollTrigger.matchMedia({
-    '(min-width: 768px)': () => {
-      const getScrollWidth = () => track.scrollWidth - window.innerWidth;
+  gsap.set(cards, { opacity: 1, scale: 1 });
 
-      gsap.set(cards, { opacity: 1, scale: 1 });
+  const isMobile = window.innerWidth < 768;
 
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapper,
-          start: 'top top',
-          end: () => `+=${getScrollWidth()}`,
-          pin: true,
-          scrub: 0.5,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      }).to(track, {
-        x: () => -getScrollWidth(),
-        ease: 'none',
-      });
-    },
+  if (!isMobile) {
+    const getScrollWidth = () => track.scrollWidth - wrapper.offsetWidth;
 
-    '(max-width: 767px)': () => {
-      gsap.set(cards, { opacity: 1, scale: 1 });
-      track.style.transform = 'none';
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: wrapper,
+        start: 'top top',
+        end: () => `+=${getScrollWidth()}`,
+        pin: true,
+        pinSpacing: true,
+        scrub: 0.5,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onRefresh: () => ScrollTrigger.getAll().forEach(st => st.vars.trigger === document.querySelector('main') && st.refresh()),
+      },
+    }).to(track, {
+      x: () => -getScrollWidth(),
+      ease: 'none',
+    });
+  } else {
+    track.style.transform = 'none';
 
-      const dots = section.querySelectorAll('.project-dot');
-      if (dots.length && track) {
-        const updateDots = () => {
-          const scrollLeft = track.scrollLeft;
-          const cardWidth = (cards[0] as HTMLElement).offsetWidth + 32;
-          const activeIndex = Math.round(scrollLeft / cardWidth);
-          dots.forEach((dot, i) => {
-            (dot as HTMLElement).style.opacity = i === activeIndex ? '1' : '0.3';
-            (dot as HTMLElement).style.transform = i === activeIndex ? 'scale(1.3)' : 'scale(1)';
-          });
-        };
-        track.addEventListener('scroll', updateDots, { passive: true });
-        updateDots();
-      }
-    },
-  });
+    const dots = section.querySelectorAll('.project-dot');
+    if (dots.length && track) {
+      const updateDots = () => {
+        const scrollLeft = track.scrollLeft;
+        const cardWidth = (cards[0] as HTMLElement).offsetWidth + 32;
+        const activeIndex = Math.round(scrollLeft / cardWidth);
+        dots.forEach((dot, i) => {
+          (dot as HTMLElement).style.opacity = i === activeIndex ? '1' : '0.3';
+          (dot as HTMLElement).style.transform = i === activeIndex ? 'scale(1.3)' : 'scale(1)';
+        });
+      };
+      track.addEventListener('scroll', updateDots, { passive: true });
+      updateDots();
+    }
+  }
 }
 
 function animateEducation() {
